@@ -1,18 +1,14 @@
-const { app, BrowserWindow } = require('electron');
+const { app, Menu, BrowserWindow } = require('electron');
 const path = require('path');
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
-}
 
 const createWindow = () => {
   console.log("Window Created!");
-  // Create the browser window.
+  // Create the browser window
   const mainWindow = new BrowserWindow({
     width: 730,
     height: 450,
     resizable: true,
+    titleBarStyle: "hidden",
     fullscreenWindowTitle: "Full Screen!",
     fullscreenable: true,
     webPreferences: {
@@ -22,24 +18,27 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
+  let menu = Menu.buildFromTemplate([{
+    label: 'file',
+    submenu: [
+      {
+        label: "Exit",
+        accelerator: process.platform == "darwin" ? "Command+Q" : "Ctrl+Q", 
+        click() {
+          app.quit();
+        }
+      }
+    ]
+  }]);
+  Menu.setApplicationMenu(menu);
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
 
 app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
